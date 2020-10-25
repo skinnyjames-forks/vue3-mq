@@ -102,6 +102,7 @@ In addition to `$mq` property this plugin provide a wrapper component to facilit
 ```
 **Props**
 mq => required : String | Array
+tag => optional : String - sets the HTML tag to use for the rendered component (default 'div')
 
 *Important*: note that you can append a `+` modifier at the end of the string to specify that the conditional rendering happens for all greater breakpoints.
 
