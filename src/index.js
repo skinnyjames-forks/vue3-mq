@@ -1,16 +1,17 @@
-import { subscribeToMediaQuery, convertBreakpointsToMediaQueries } from './helpers.js'
 import MqLayout from './component.js'
-import { setAvailableBreakpoints, setCurrentBreakpoint, currentBreakpoint } from "./utils";
+import { setAvailableBreakpoints, setCurrentBreakpoint, currentBreakpoint, updateBreakpoints } from "./utils";
 
-const DEFAULT_BREAKPOINT = {
+const DEFAULT_BREAKPOINTS = {
   sm: 450,
   md: 1250,
   lg: Infinity,
 }
 
-const install = function (app, { breakpoints = DEFAULT_BREAKPOINT, defaultBreakpoint = 'sm' } = {}) {  
+const install = function (app, { breakpoints = DEFAULT_BREAKPOINTS, defaultBreakpoint = 'sm' } = {}) {  
   let hasSetupListeners = false
   setCurrentBreakpoint(defaultBreakpoint);
+
+  app.provide('updateBreakpoints', updateBreakpoints)
 
   // Init reactive component
   app.mixin({
@@ -21,20 +22,13 @@ const install = function (app, { breakpoints = DEFAULT_BREAKPOINT, defaultBreakp
     },
     mounted() {
       if (!hasSetupListeners) {
-        const mediaQueries = convertBreakpointsToMediaQueries(breakpoints)
-        // setup listeners
-        for (const key in mediaQueries) {
-          const mediaQuery = mediaQueries[key]
-          const enter = () => { setCurrentBreakpoint(key) }
-          subscribeToMediaQuery(mediaQuery, enter)
-        }
+        updateBreakpoints(breakpoints)
         hasSetupListeners = true
       }
     }
   })
 
   app.config.globalProperties.$mqAvailableBreakpoints = breakpoints;
-  setAvailableBreakpoints(breakpoints);
   app.component('mq-layout', MqLayout)
 }
 

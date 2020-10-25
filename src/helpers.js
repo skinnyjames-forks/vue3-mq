@@ -1,4 +1,5 @@
-import json2mq from 'json2mq'
+import json2mq from 'json2mq';
+export const listeners = [];
 
 export function convertBreakpointsToMediaQueries(breakpoints) {
   const keys = Object.keys(breakpoints)
@@ -32,6 +33,7 @@ export function subscribeToMediaQuery(mediaQuery, enter) {
   const cb = ({ matches }) => {
     if (matches) enter()
   }
-  mql.addListener(cb) //subscribing
+  listeners.push({mql, cb});
+  mql.addEventListener('change', cb) //subscribing
   cb(mql) //initial trigger
 }

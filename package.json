@@ -1,13 +1,11 @@
 {
   "name": "@craigrileyuk/vue3-mq",
-  "version": "2.0.1",
+  "version": "2.0.10",
   "description": "Handle media queries easily & build responsive design with Vue",
-  "entry": "examples/index.html",
-  "main": "dist/vue3-mq.js",
-  "module": "dist/vue3-mq.es.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
   "scripts": {
     "build": "npx rimraf dist && bili --format cjs --format umd --format umd-min --format es --external vue --moduleName vue3-mq",
-    "dev": "parcel examples/index.html",
     "test": "vue-cli-service test:unit"
   },
   "author": "Craig Riley <github@craigriley.uk>",

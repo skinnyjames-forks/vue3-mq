@@ -112,6 +112,7 @@
 
   var json2mq_1 = json2mq;
 
+  var listeners = [];
   function convertBreakpointsToMediaQueries(breakpoints) {
     var keys = Object.keys(breakpoints);
     var values = keys.map(function (key) {
@@ -143,7 +144,11 @@
       if (matches) enter();
     };
 
-    mql.addListener(cb); //subscribing
+    listeners.push({
+      mql: mql,
+      cb: cb
+    });
+    mql.addEventListener('change', cb); //subscribing
 
     cb(mql); //initial trigger
   }
@@ -163,6 +168,32 @@
   function isArray(arg) {
     return Object.prototype.toString.call(arg) === '[object Array]';
   }
+  function updateBreakpoints(breakpoints) {
+    for (var i = listeners.length - 1; i >= 0; i--) {
+      var _listeners$i = listeners[i],
+          mql = _listeners$i.mql,
+          cb = _listeners$i.cb;
+      mql.removeEventListener('change', cb);
+      listeners.splice(i, 1);
+    }
+
+    setAvailableBreakpoints(breakpoints);
+    var mediaQueries = convertBreakpointsToMediaQueries(breakpoints); // setup listeners
+
+    var _loop = function _loop(key) {
+      var mediaQuery = mediaQueries[key];
+
+      var enter = function enter() {
+        setCurrentBreakpoint(key);
+      };
+
+      subscribeToMediaQuery(mediaQuery, enter);
+    };
+
+    for (var key in mediaQueries) {
+      _loop(key);
+    }
+  }
 
   // USAGE
   var MqLayout = {
@@ -171,6 +202,10 @@
       mq: {
         required: true,
         type: [String, Array]
+      },
+      tag: {
+        type: String,
+        "default": 'div'
       }
     },
     setup: function setup(props, context) {
@@ -186,12 +221,12 @@
         return activeBreakpoints.value.includes(currentBreakpoint.value);
       });
       return function () {
-        return shouldRenderChildren.value ? vue.h("div", {}, context.slots["default"]()) : vue.h();
+        return shouldRenderChildren.value ? vue.h(props.tag, {}, context.slots["default"]()) : vue.h();
       };
     }
   };
 
-  var DEFAULT_BREAKPOINT = {
+  var DEFAULT_BREAKPOINTS = {
     sm: 450,
     md: 1250,
     lg: Infinity
@@ -200,12 +235,13 @@
   var install = function install(app) {
     var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
         _ref$breakpoints = _ref.breakpoints,
-        breakpoints = _ref$breakpoints === void 0 ? DEFAULT_BREAKPOINT : _ref$breakpoints,
+        breakpoints = _ref$breakpoints === void 0 ? DEFAULT_BREAKPOINTS : _ref$breakpoints,
         _ref$defaultBreakpoin = _ref.defaultBreakpoint,
         defaultBreakpoint = _ref$defaultBreakpoin === void 0 ? 'sm' : _ref$defaultBreakpoin;
 
     var hasSetupListeners = false;
-    setCurrentBreakpoint(defaultBreakpoint); // Init reactive component
+    setCurrentBreakpoint(defaultBreakpoint);
+    app.provide('updateBreakpoints', updateBreakpoints); // Init reactive component
 
     app.mixin({
       computed: {
@@ -215,28 +251,12 @@
       },
       mounted: function mounted() {
         if (!hasSetupListeners) {
-          var mediaQueries = convertBreakpointsToMediaQueries(breakpoints); // setup listeners
-
-          var _loop = function _loop(key) {
-            var mediaQuery = mediaQueries[key];
-
-            var enter = function enter() {
-              setCurrentBreakpoint(key);
-            };
-
-            subscribeToMediaQuery(mediaQuery, enter);
-          };
-
-          for (var key in mediaQueries) {
-            _loop(key);
-          }
-
+          updateBreakpoints(breakpoints);
           hasSetupListeners = true;
         }
       }
     });
     app.config.globalProperties.$mqAvailableBreakpoints = breakpoints;
-    setAvailableBreakpoints(breakpoints);
     app.component('mq-layout', MqLayout);
   };
 
