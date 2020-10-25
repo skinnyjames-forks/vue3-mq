@@ -1,5 +1,6 @@
-import { subscribeToMediaQuery, convertBreakpointsToMediaQueries, transformValuesFromBreakpoints } from './helpers.js'
+import { subscribeToMediaQuery, convertBreakpointsToMediaQueries } from './helpers.js'
 import MqLayout from './component.js'
+import { setAvailableBreakpoints, setCurrentBreakpoint, currentBreakpoint } from "./utils";
 
 const DEFAULT_BREAKPOINT = {
   sm: 450,
@@ -7,25 +8,16 @@ const DEFAULT_BREAKPOINT = {
   lg: Infinity,
 }
 
-const install = function (Vue, { breakpoints = DEFAULT_BREAKPOINT, defaultBreakpoint = 'sm' } = {}) {  
+const install = function (app, { breakpoints = DEFAULT_BREAKPOINT, defaultBreakpoint = 'sm' } = {}) {  
   let hasSetupListeners = false
+  setCurrentBreakpoint(defaultBreakpoint);
+
   // Init reactive component
-  const reactorComponent = new Vue({
-    data: () => ({
-      currentBreakpoint: defaultBreakpoint,
-    })
-  })
-  Vue.filter('mq', (currentBreakpoint, values) => {
-    return transformValuesFromBreakpoints(Object.keys(breakpoints), values, currentBreakpoint)
-  })
-  Vue.mixin({
+  app.mixin({
     computed: {
       $mq() {
-        return reactorComponent.currentBreakpoint
+        return currentBreakpoint.value;
       },
-    },
-    created () {
-      if (this.$isServer) reactorComponent.currentBreakpoint = defaultBreakpoint
     },
     mounted() {
       if (!hasSetupListeners) {
@@ -33,15 +25,17 @@ const install = function (Vue, { breakpoints = DEFAULT_BREAKPOINT, defaultBreakp
         // setup listeners
         for (const key in mediaQueries) {
           const mediaQuery = mediaQueries[key]
-          const enter = () => { reactorComponent.currentBreakpoint = key }
+          const enter = () => { setCurrentBreakpoint(key) }
           subscribeToMediaQuery(mediaQuery, enter)
         }
         hasSetupListeners = true
       }
     }
   })
-  Vue.prototype.$mqAvailableBreakpoints = breakpoints
-  Vue.component('MqLayout', MqLayout)
+
+  app.config.globalProperties.$mqAvailableBreakpoints = breakpoints;
+  setAvailableBreakpoints(breakpoints);
+  app.component('mq-layout', MqLayout)
 }
 
-export default { install }
+export default { install };
