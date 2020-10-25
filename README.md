@@ -1,10 +1,9 @@
 # Vue MQ (MediaQuery)
 Define your breakpoints and build responsive design semantically and declaratively in a mobile-first way with Vue.
 
-_Use with `vue:  ^2.x.x`
+_Use with `vue:  ^3.x.x`
 _
 
-**Demo**: [here](https://alexandrebonaventure.github.io/vue-mq)
 
 ## Table of Contents
 
