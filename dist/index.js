@@ -156,9 +156,6 @@ var install = function install(app) {
         return currentBreakpoint.value;
       }
     },
-    created: function created() {
-      if (this.$isServer) setCurrentBreakpoint(defaultBreakpoint);
-    },
     mounted: function mounted() {
       if (!hasSetupListeners) {
         var mediaQueries = convertBreakpointsToMediaQueries(breakpoints); // setup listeners

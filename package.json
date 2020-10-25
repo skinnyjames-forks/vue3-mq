@@ -10,7 +10,7 @@
     "dev": "parcel examples/index.html",
     "test": "vue-cli-service test:unit"
   },
-  "author": "Craig Riley <hello@craigriley.uk>",
+  "author": "Craig Riley <github@craigriley.uk>",
   "repository": {
     "type": "git",
     "url": "https://github.com/craigrileyuk/vue3-mq"
