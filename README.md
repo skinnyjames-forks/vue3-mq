@@ -18,7 +18,7 @@ _
 #### Filter
 Since Vue 3 has dropped support for filters, the previous functionality has been removed 
 #### SSR
-Presently, support for SSR cannot be confirmed
+Presently, support for SSR is not supported
 
 
 ## Installation
@@ -38,17 +38,21 @@ Define your custom breakpoints by passing `breakpoints` option. This let you nam
 `{ small: 500, large: 1200, whatever: Infinity }`
 `{ xs: 300, s: 500, m: 800, l: 1200, xl: Infinity }`
 ```js
-import Vue from 'vue'
-import VueMq from 'vue-mq'
+import { createApp } from "vue";
+import VueMq from "@craigrileyuk/vue3-mq";
 
-Vue.use(VueMq, {
+const app = createApp({});
+
+app.use(VueMq, {
   breakpoints: { // default breakpoints - customize this
     sm: 450,
     md: 1250,
     lg: Infinity,
-  }
-  defaultBreakpoint: 'sm' // customize this for SSR
+  },
+  defaultBreakpoint: 'sm'
 })
+
+app.mount('#app');
 ```
 #### Use `$mq` property
 After installing the plugin every instance of Vue component is given access to a reactive $mq property. Its value will be a `String` which is the current breakpoint.
@@ -58,13 +62,11 @@ After installing the plugin every instance of Vue component is given access to a
 `'md'` => **450 >= screenWidth < 1250**
 `'lg'` => **screenWidth >= 1250**
 
-```js
+```html
 //Use it in a component
-new Vue({
-  template: `
-    <h1>current: {{$mq}}</h1>
-  `,
-})
+<template>
+  <div>{{ $mq }}</div>
+</template>
 ```
 
 #### Use `$mq` with a computed property
