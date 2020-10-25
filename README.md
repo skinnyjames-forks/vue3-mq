@@ -1,5 +1,5 @@
 # Vue MQ (MediaQuery)
-Define your breakpoints and build responsive design semantically and declaratively in a mobile-first way with Vue.
+Define your breakpoints and build responsive design semantically and declaratively in a mobile-first way with Vue 3.
 
 _Use with `vue:  ^3.x.x`
 _
@@ -7,11 +7,19 @@ _
 
 ## Table of Contents
 
+- [Migration Guide](#migration-guide)
 - [Installation](#installation)
 - [Usage](#usage)
 - [SSR Support](#ssr-support)
 - [Browser Support](#browser-support)
 - [Support](#support)
+
+## Migration Guide
+
+#### Filter
+Since Vue 3 has dropped support for filters, the previous functionality has been removed 
+#### SSR
+Presently, support for SSR cannot be confirmed
 
 
 ## Installation
@@ -19,11 +27,7 @@ _
 #### Using NPM
 
 ```sh
-npm install vue-mq
-```
-#### Using Yarn
-```sh
-yarn add vue-mq
+npm install @craigrileyuk/vue3-mq
 ```
 
 ## Usage
@@ -64,21 +68,6 @@ new Vue({
 })
 ```
 
-#### Use `$mq` property with the mq filter
-Using the filter allow to build your responsive design in a declarative way. This can be very useful and elegant to pass down props to layout component. (eg: a grid system)
-
-```js
-new Vue({
-  template: `
-    <grid-component :column="$mq | mq({ sm: 1, md: 2, lg: 3 })">
-    </grid-component>
-  `,
-})
-```
-
-Remember that the filter design embrace mobile-first philosophy so writing `$mq | mq({ sm: 1, lg: 3 })` will output `1` for `md` breakpoint if omited. In short it will always fallback to the smallest breakpoint (_aka mobile_) if value isn't overriden by a largest breakpoint.
-
-
 #### Use `$mq` with a computed property
 `$mq` property is fully reactive (like a data property) so feel free to use it in a computed.
 
@@ -115,13 +104,10 @@ mq => required : String | Array
 
 *Important*: note that you can append a `+` modifier at the end of the string to specify that the conditional rendering happens for all greater breakpoints.
 
-## SSR Support
-v1.0+ now supports SSR. You can customize the `defaultBreakpoint` which let you set the breakpoint used by the server-side-rendering 
-
 ## Browser Support
 This plugin relies on matchMedia API to detect screensize change. So for older browsers and IE, you should polyfill this out:
 Paul Irish: [matchMedia polyfill](https://github.com/paulirish/matchMedia.js)
 
 ## Support
 
-Please [open an issue](https://github.com/AlexandreBonaventure/vue-mq/issues/new) for support.
+Please [open an issue](https://github.com/craigrileyuk/vue3-mq/issues/new) for support.

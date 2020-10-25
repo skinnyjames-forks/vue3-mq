@@ -6,7 +6,7 @@ import {
 } from '../../src/helpers.js'
 
 describe('helpers.js', () => {
-  test('#convertBreakpointsToMediaQueries', () => {
+  it('#convertBreakpointsToMediaQueries', () => {
     const breakpoints = {
       sm: 350,
       md: 900,
@@ -20,13 +20,13 @@ describe('helpers.js', () => {
     const result = convertBreakpointsToMediaQueries(breakpoints)
     expect(result).toEqual(expected)
   })
-  test('#selectBreakpoints', () => {
+  it('#selectBreakpoints', () => {
     const breakpoints = ['sm', 'md', 'lg']
     const result = selectBreakpoints(breakpoints, 'md')
     expect(result).toEqual(['md', 'lg'])
   })
   describe('#transformValuesFromBreakpoints', () => {
-    test('should work with falsy values', () => {
+    it('should work with falsy values', () => {
       const breakpoints = ['sm', 'md', 'lg']
       const values = {
         sm: false,
@@ -35,7 +35,7 @@ describe('helpers.js', () => {
       const result1 = transformValuesFromBreakpoints(breakpoints, values, 'sm')
       expect(result1).toBe(false)
     })
-    test('should return values correctly', () => {
+    it('should return values correctly', () => {
       const breakpoints = ['sm', 'md', 'lg']
       const values = {
         sm: 1,
@@ -49,7 +49,7 @@ describe('helpers.js', () => {
       expect(result2).toBe(2)
       expect(result3).toBe(3)
     })
-    test('should return values with mobile-first override', () => {
+    it('should return values with mobile-first override', () => {
       const breakpoints = ['sm', 'md', 'lg']
       const values = {
         sm: 1,
