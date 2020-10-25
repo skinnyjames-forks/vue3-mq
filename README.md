@@ -10,7 +10,6 @@ _
 - [Migration Guide](#migration-guide)
 - [Installation](#installation)
 - [Usage](#usage)
-- [SSR Support](#ssr-support)
 - [Browser Support](#browser-support)
 - [Support](#support)
 
