@@ -13,6 +13,10 @@ export default {
             required: true,
             type: [String, Array],
         },
+        tag: {
+          type: String,
+          default: 'div'
+        }
     },
     setup(props, context) {
         const plusModifier = computed(
@@ -33,7 +37,7 @@ export default {
         );
         return () =>
             shouldRenderChildren.value
-                ? h("div", {}, context.slots.default())
+                ? h(props.tag, {}, context.slots.default())
                 : h();
     },
 };
