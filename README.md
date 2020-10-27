@@ -1,4 +1,4 @@
-# Vue MQ (MediaQuery)
+# Vue 3 MQ (MediaQuery)
 Define your breakpoints and build responsive design semantically and declaratively in a mobile-first way with Vue 3.
 
 _Use with `vue:  ^3.x.x`
