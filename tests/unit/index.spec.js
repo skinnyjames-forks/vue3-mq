@@ -1,5 +1,5 @@
 import plugin from "../../src/index.js";
-import { shallowMount, createLocalVue } from "@vue/test-utils";
+import { shallowMount } from "@vue/test-utils";
 import { h } from "vue";
 import MatchMediaMock from "match-media-mock";
 

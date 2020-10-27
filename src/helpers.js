@@ -25,6 +25,7 @@ export function convertBreakpointsToMediaQueries(breakpoints) {
 
 export function selectBreakpoints(breakpoints, currentBreakpoint) {
   const index = breakpoints.findIndex(b => b === currentBreakpoint)
+  // Need to have a slice for index < for minus
   return breakpoints.slice(index)
 }
 

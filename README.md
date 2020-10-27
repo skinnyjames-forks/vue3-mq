@@ -26,7 +26,7 @@ Presently, support for SSR has been removed
 #### Using NPM
 
 ```sh
-npm install @craigrileyuk/vue3-mq
+npm install vue3-mq
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ Define your custom breakpoints by passing `breakpoints` option. This let you nam
 
 ```js
 import { createApp } from "vue";
-import VueMq from "@craigrileyuk/vue3-mq";
+import VueMq from "vue3-mq";
 
 const app = createApp({});
 

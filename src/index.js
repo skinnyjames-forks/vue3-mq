@@ -1,5 +1,5 @@
 import MqLayout from './component.js'
-import { setAvailableBreakpoints, setCurrentBreakpoint, currentBreakpoint, updateBreakpoints } from "./utils";
+import { setCurrentBreakpoint, currentBreakpoint, updateBreakpoints } from "./utils";
 
 const DEFAULT_BREAKPOINTS = {
   sm: 450,
@@ -32,4 +32,6 @@ const install = function (app, { breakpoints = DEFAULT_BREAKPOINTS, defaultBreak
   app.component('mq-layout', MqLayout)
 }
 
-export default { install };
+export default {
+  install
+}

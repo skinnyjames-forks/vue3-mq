@@ -22,13 +22,16 @@ export default {
         const plusModifier = computed(
             () => !isArray(props.mq) && props.mq.slice(-1) === "+"
         );
+        // Add a minus modifier here
         const activeBreakpoints = computed(() => {
             const breakpoints = Object.keys(mqAvailableBreakpoints.value);
+            // Add minus to the mix here too, in a bracket with pM.val
             const mq = plusModifier.value
                 ? props.mq.slice(0, -1)
                 : isArray(props.mq)
                 ? props.mq
                 : [props.mq];
+            // Add minus to the mix here too
             return plusModifier.value ? selectBreakpoints(breakpoints, mq) : mq;
         });
 
