@@ -11,19 +11,20 @@ export const mqAvailableBreakpoints = readonly(state.mqAvailableBreakpoints);
 export const setCurrentBreakpoint = (v) => state.currentBreakpoint.value = v;
 export const currentBreakpoint = readonly(state.currentBreakpoint);
 
-export function isArray (arg) {
-  return Object.prototype.toString.call(arg) === '[object Array]';
-}
-
 export function updateBreakpoints(breakpoints) {
+  // Remove any existing MQ listeners
   for (let i = listeners.length - 1; i >= 0; i--) {
     const { mql, cb } = listeners[i];
     mql.removeEventListener('change', cb);
     listeners.splice(i,1);
   }
+
+  // Save new breakpoints to reactive variable
   setAvailableBreakpoints(breakpoints);
-  const mediaQueries = convertBreakpointsToMediaQueries(breakpoints)
-  // setup listeners
+  // Create css media queries from breakpoints
+  const mediaQueries = convertBreakpointsToMediaQueries(breakpoints);
+
+  // Add new MQ listeners
   for (const key in mediaQueries) {
     const mediaQuery = mediaQueries[key];
     const enter = () => { setCurrentBreakpoint(key) }

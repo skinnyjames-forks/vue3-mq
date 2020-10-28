@@ -1,5 +1,5 @@
-import MqLayout from './component.js'
-import { setCurrentBreakpoint, currentBreakpoint, updateBreakpoints } from "./utils";
+import MqLayout from './component';
+import { setCurrentBreakpoint, currentBreakpoint, updateBreakpoints } from "./store";
 
 const DEFAULT_BREAKPOINTS = {
   sm: 450,
@@ -11,7 +11,7 @@ const install = function (app, { breakpoints = DEFAULT_BREAKPOINTS, defaultBreak
   let hasSetupListeners = false
   setCurrentBreakpoint(defaultBreakpoint);
 
-  app.provide('updateBreakpoints', updateBreakpoints)
+  app.provide('updateBreakpoints', updateBreakpoints);
 
   // Init reactive component
   app.mixin({
@@ -29,7 +29,7 @@ const install = function (app, { breakpoints = DEFAULT_BREAKPOINTS, defaultBreak
   })
 
   app.config.globalProperties.$mqAvailableBreakpoints = breakpoints;
-  app.component('mq-layout', MqLayout)
+  app.component('MqLayout', MqLayout)
 }
 
 export default {

@@ -1,46 +1,67 @@
-// USAGE
-// mq-layout(mq="lg")
-//   p I’m lg
-import { selectBreakpoints } from "./helpers";
-import { isArray } from "./utils";
-import { mqAvailableBreakpoints, currentBreakpoint } from "./utils";
-import { computed, h } from "vue";
+// USAGE // mq-layout(mq="lg") // p I’m lg
+import {
+    selectBreakpoints
+} from "./helpers";
+import {
+    mqAvailableBreakpoints,
+    currentBreakpoint
+} from "./store";
+import {
+    computed,
+    h
+} from "vue";
 
 export default {
     name: "MqLayout",
     props: {
         mq: {
             required: true,
-            type: [String, Array],
+            type: [Object]
         },
         tag: {
-          type: String,
-          default: 'div'
+            type: String,
+            default: "div"
         }
     },
     setup(props, context) {
-        const plusModifier = computed(
-            () => !isArray(props.mq) && props.mq.slice(-1) === "+"
+        /*
+        props.mq
+        ['sm','md','lg'] ( respond to sm, md and lg )
+        md+ ( respond to md and above )
+        -lg ( respond to lg and below )
+        sm-lg ( respond to sm, md and lg )
+        */
+        const isMqArray = computed(() => Array.isArray(props.mq));
+        const isMqPlus = computed(
+            () => !isMqArray.value && /\+$/.test(props.mq) === true
         );
+        const isMqMinus = computed(
+            () => !isMqArray.value && /-$/.test(props.mq) === true
+        );
+        const isMqRange = computed(
+            () => !isMqArray.value && /^\w*-\w*/.test(props.mq) === true
+        );
+        /*
+        const plusModifier = computed(
+            () => !Array.isArray(props.mq) && props.mq.slice(-1) === "+"
+        );
+        */
         // Add a minus modifier here
         const activeBreakpoints = computed(() => {
-            const breakpoints = Object.keys(mqAvailableBreakpoints.value);
-            // Add minus to the mix here too, in a bracket with pM.val
-            const mq = plusModifier.value
-                ? props.mq.slice(0, -1)
-                : isArray(props.mq)
-                ? props.mq
-                : [props.mq];
-            // Add minus to the mix here too
-            return plusModifier.value ? selectBreakpoints(breakpoints, mq) : mq;
+            if (isMqArray.value) return props.mq;
+            else if (!isMqPlus.value && !isMqMinus.value && !isMqRange.value) return [props.mq];
+            else {
+                console.log(mqAvailableBreakpoints.value)
+                return selectBreakpoints({mqProp: props.mq, isMqPlus, isMqMinus, isMqRange });
+            }
         });
 
         const shouldRenderChildren = computed(() =>
             activeBreakpoints.value.includes(currentBreakpoint.value)
         );
         return () =>
-            shouldRenderChildren.value
-                ? h(props.tag, {}, context.slots.default())
-                : h();
-    },
+            shouldRenderChildren.value ?
+            h(props.tag, {}, context.slots.default()) :
+            h();
+    }
 };
