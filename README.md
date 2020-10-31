@@ -20,6 +20,9 @@ Since Vue 3 has dropped support for filters, the previous functionality has been
 #### SSR
 Presently, support for SSR has been removed
 
+## Demo
+
+See https://craigrileyuk.github.io/vue3-mq/ for a demonstration and usage guide for Vue3-MQ.
 
 ## Installation
 
