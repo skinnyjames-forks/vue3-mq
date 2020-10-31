@@ -60,3 +60,12 @@ export function subscribeToMediaQuery(mediaQuery, enter) {
   mql.addEventListener('change', cb) //subscribing
   cb(mql) //initial trigger
 }
+
+export function sanitiseBreakpoints(breakpoints) {
+  for (let bp in breakpoints) {
+    if (!['string','number'].includes(typeof bp) || !bp ) throw new Error("Invalid or missing breakpoint key");
+    if (typeof breakpoints[bp] === 'string') breakpoints[bp] = parseFloat(breakpoints[bp].replace(/[^0-9]/g,""));
+    if (typeof breakpoints[bp] !== 'number' || breakpoints[bp] < 0) throw new Error("Invalid breakpoint value for " + bp + ". Please use a valid number.");
+    if (!breakpoints[bp]) throw new Error("No valid breakpoint value for " + bp + " was found");
+  }
+}

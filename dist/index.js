@@ -7,6 +7,22 @@ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'defau
 
 var json2mq__default = /*#__PURE__*/_interopDefaultLegacy(json2mq);
 
+function _typeof(obj) {
+  "@babel/helpers - typeof";
+
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    _typeof = function (obj) {
+      return typeof obj;
+    };
+  } else {
+    _typeof = function (obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+  }
+
+  return _typeof(obj);
+}
+
 function _defineProperty(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
@@ -20,6 +36,40 @@ function _defineProperty(obj, key, value) {
   }
 
   return obj;
+}
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    });
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
 }
 
 function _slicedToArray(arr, i) {
@@ -94,6 +144,14 @@ function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
+var DEFAULT_BREAKPOINTS = {
+  xs: 576,
+  sm: 768,
+  md: 992,
+  lg: 1200,
+  xl: 1400,
+  xxl: Infinity
+};
 var state = {
   mqAvailableBreakpoints: vue.ref({}),
   currentBreakpoint: vue.ref("")
@@ -114,8 +172,9 @@ function updateBreakpoints(breakpoints) {
         cb = _listeners$i.cb;
     mql.removeEventListener('change', cb);
     listeners.splice(i, 1);
-  } // Save new breakpoints to reactive variable
+  }
 
+  sanitiseBreakpoints(breakpoints); // Save new breakpoints to reactive variable
 
   setAvailableBreakpoints(breakpoints); // Create css media queries from breakpoints
 
@@ -134,6 +193,29 @@ function updateBreakpoints(breakpoints) {
   for (var key in mediaQueries) {
     _loop(key);
   }
+}
+function shouldRender(mq) {
+  var isMqArray = Array.isArray(mq);
+  var isMqPlus = !isMqArray.value && /\+$/.test(mq) === true;
+  var isMqMinus = !isMqArray.value && /-$/.test(mq) === true;
+  var isMqRange = !isMqArray.value && /^\w*-\w*/.test(mq) === true;
+  var activeBreakpoints = vue.computed(function () {
+    if (isMqArray) return mq;else if (!isMqPlus && !isMqMinus && !isMqRange) return [mq];else {
+      return selectBreakpoints({
+        mqProp: mq,
+        isMqPlus: {
+          value: isMqPlus
+        },
+        isMqMinus: {
+          value: isMqMinus
+        },
+        isMqRange: {
+          value: isMqRange
+        }
+      });
+    }
+  });
+  return activeBreakpoints.value.includes(currentBreakpoint.value);
 }
 
 var listeners = [];
@@ -253,28 +335,35 @@ function subscribeToMediaQuery(mediaQuery, enter) {
 
   cb(mql); //initial trigger
 }
+function sanitiseBreakpoints(breakpoints) {
+  for (var bp in breakpoints) {
+    if (!['string', 'number'].includes(_typeof(bp)) || !bp) throw new Error("Invalid or missing breakpoint key");
+    if (typeof breakpoints[bp] === 'string') breakpoints[bp] = parseFloat(breakpoints[bp].replace(/[^0-9]/g, ""));
+    if (typeof breakpoints[bp] !== 'number' || breakpoints[bp] < 0) throw new Error("Invalid breakpoint value for " + bp + ". Please use a valid number.");
+    if (!breakpoints[bp]) throw new Error("No valid breakpoint value for " + bp + " was found");
+  }
+}
 
-// USAGE // mq-layout(mq="lg") // p I’m lg
 var MqLayout = {
   name: "MqLayout",
   props: {
     mq: {
-      required: true,
-      type: [Object]
+      type: [String, Array]
     },
     tag: {
       type: String,
       "default": "div"
+    },
+    group: {
+      type: Boolean,
+      "default": false
     }
   },
   setup: function setup(props, context) {
-    /*
-    props.mq
-    ['sm','md','lg'] ( respond to sm, md and lg )
-    md+ ( respond to md and above )
-    -lg ( respond to lg and below )
-    sm-lg ( respond to sm, md and lg )
-    */
+    var defaultOptions = {
+      name: "fade",
+      mode: "out-in"
+    };
     var isMqArray = vue.computed(function () {
       return Array.isArray(props.mq);
     });
@@ -287,16 +376,8 @@ var MqLayout = {
     var isMqRange = vue.computed(function () {
       return !isMqArray.value && /^\w*-\w*/.test(props.mq) === true;
     });
-    /*
-    const plusModifier = computed(
-        () => !Array.isArray(props.mq) && props.mq.slice(-1) === "+"
-    );
-    */
-    // Add a minus modifier here
-
     var activeBreakpoints = vue.computed(function () {
       if (isMqArray.value) return props.mq;else if (!isMqPlus.value && !isMqMinus.value && !isMqRange.value) return [props.mq];else {
-        console.log(mqAvailableBreakpoints.value);
         return selectBreakpoints({
           mqProp: props.mq,
           isMqPlus: isMqPlus,
@@ -308,16 +389,47 @@ var MqLayout = {
     var shouldRenderChildren = vue.computed(function () {
       return activeBreakpoints.value.includes(currentBreakpoint.value);
     });
-    return function () {
-      return shouldRenderChildren.value ? vue.h(props.tag, {}, context.slots["default"]()) : vue.h();
-    };
-  }
-};
 
-var DEFAULT_BREAKPOINTS = {
-  sm: 450,
-  md: 1250,
-  lg: Infinity
+    var renderSlots = function renderSlots(tag) {
+      var slots = [];
+
+      var _loop = function _loop(slot) {
+        if (!props.group && slots.length > 0) return {
+          v: slots
+        };
+        var shouldRenderSlot = vue.computed(function () {
+          return shouldRender(slot.split(":")[0]);
+        });
+
+        if (shouldRenderSlot.value) {
+          slots.push(vue.h(tag ? tag : context.slots[slot], {
+            key: slot
+          }, tag ? context.slots[slot]() : undefined));
+        }
+      };
+
+      for (var slot in context.slots) {
+        var _ret = _loop(slot);
+
+        if (_typeof(_ret) === "object") return _ret.v;
+      }
+
+      return slots;
+    };
+
+    if (context.slots["default"]) {
+      return function () {
+        return shouldRenderChildren.value ? vue.h(props.tag, {}, context.slots["default"]()) : vue.h();
+      };
+    } else {
+      return function () {
+        var transitionOptions = _objectSpread2(_objectSpread2({}, defaultOptions), context.attrs);
+
+        var el = props.group ? vue.TransitionGroup : vue.Transition;
+        return vue.h(el, transitionOptions, renderSlots(props.tag));
+      };
+    }
+  }
 };
 
 var install = function install(app) {
@@ -329,7 +441,8 @@ var install = function install(app) {
 
   var hasSetupListeners = false;
   setCurrentBreakpoint(defaultBreakpoint);
-  app.provide('updateBreakpoints', updateBreakpoints); // Init reactive component
+  app.provide('updateBreakpoints', updateBreakpoints);
+  app.provide('mq', vue.readonly(currentBreakpoint)); // Init reactive component
 
   app.mixin({
     computed: {

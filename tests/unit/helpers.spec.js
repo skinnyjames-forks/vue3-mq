@@ -1,6 +1,6 @@
 import {
 	convertBreakpointsToMediaQueries,
-	transformValuesFromBreakpoints,
+	sanitiseBreakpoints,
 	selectBreakpoints,
 } from "../../src/helpers.js";
 import * as store from "../../src/store.js";
@@ -34,7 +34,17 @@ describe("selectBreakpoints", () => {
 				xxl: Infinity,
 			},
 		};
-	});
+  });
+  
+	it('throws an error if a breakpoint key is missing', () => {
+		expect(() =>
+			sanitiseBreakpoints({
+        md: 992,
+				"": 1200,
+        xl: 1400
+      })
+    ).toThrow("Invalid or missing breakpoint key");
+  });
 
 	it("returns the correct breakpoints in mq+ mode", () => {
 		const result = selectBreakpoints({
@@ -94,5 +104,5 @@ describe("selectBreakpoints", () => {
 				isMqRange: { value: true },
 			})
 		).toThrow("Range to breakpoint (error) not found");
-	});
+  });
 });

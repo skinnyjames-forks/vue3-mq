@@ -1,5 +1,15 @@
-import { ref, readonly } from "vue";
-import { convertBreakpointsToMediaQueries, subscribeToMediaQuery, listeners } from "./helpers";
+import { ref, readonly, computed } from "vue";
+import { convertBreakpointsToMediaQueries, subscribeToMediaQuery, listeners, sanitiseBreakpoints, selectBreakpoints } from "./helpers";
+
+export const DEFAULT_BREAKPOINTS = {
+				xs: 576,
+				sm: 768,
+				md: 992,
+				lg: 1200,
+				xl: 1400,
+				xxl: Infinity,
+			}
+
 const state = {
   mqAvailableBreakpoints: ref({}),
   currentBreakpoint: ref("")
@@ -19,6 +29,8 @@ export function updateBreakpoints(breakpoints) {
     listeners.splice(i,1);
   }
 
+  sanitiseBreakpoints(breakpoints);
+
   // Save new breakpoints to reactive variable
   setAvailableBreakpoints(breakpoints);
   // Create css media queries from breakpoints
@@ -30,4 +42,20 @@ export function updateBreakpoints(breakpoints) {
     const enter = () => { setCurrentBreakpoint(key) }
     subscribeToMediaQuery(mediaQuery, enter)
   }
+}
+
+export function shouldRender(mq) {
+        const isMqArray = Array.isArray(mq);
+        const isMqPlus = !isMqArray.value && /\+$/.test(mq) === true;
+        const isMqMinus = !isMqArray.value && /-$/.test(mq) === true;
+        const isMqRange = !isMqArray.value && /^\w*-\w*/.test(mq) === true;
+        const activeBreakpoints = computed(() => {
+            if (isMqArray) return mq;
+            else if (!isMqPlus && !isMqMinus && !isMqRange) return [mq];
+            else {
+                return selectBreakpoints({mqProp: mq, isMqPlus: { value: isMqPlus}, isMqMinus: { value: isMqMinus}, isMqRange: { value: isMqRange} });
+            }
+        });
+
+        return activeBreakpoints.value.includes(currentBreakpoint.value)
 }

@@ -1,7 +1,9 @@
 import plugin from "../../src/index.js";
+import MqLayout from "../../src/component.js";
 import { mount } from "@vue/test-utils";
 import { h } from "vue";
 import MatchMediaMock from "../mock/MatchMediaMock";
+import * as store from "../../src/store.js";
 
 describe("index.js", () => {
 	let results;
@@ -38,11 +40,6 @@ describe("index.js", () => {
 				}
 			]
 		];
-		for (let plugin of plugins) {
-			if (Array.isArray(plugin)) {
-				continue;
-			}
-		}
 		const wrapper = mount(
 			{
 				render() {
@@ -89,5 +86,27 @@ describe("index.js", () => {
 		matchMediaMock.setConfig({ type: "screen", width: 700 });
 		Array.from(results)[1].callListeners();
 		expect(wrapper.vm.$mq).toBe("md");
-    });
+	});
+	
+	it("should mount the mq-layout component", () => {
+		store.mqAvailableBreakpoints = {
+			value: {
+				xs: 576,
+				sm: 768,
+				md: 992,
+				lg: 1200,
+				xl: 1400,
+				xxl: Infinity,
+			},
+		};
+		store.currentBreakpoint = {
+			value: 'xl'
+		}
+		const wrapper = mount(MqLayout, { shallow: false, slots: {
+			default: "<h1>This is a test</h1>"
+		}, props: {
+			mq: "xl"
+		} });
+		expect(wrapper.html()).toContain("This is a test");
+	})
 });
