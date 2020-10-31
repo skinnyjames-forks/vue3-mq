@@ -23,6 +23,7 @@
     "@vue/cli-service": "^4.5.7",
     "@vue/compiler-sfc": "^3.0.2",
     "@vue/test-utils": "^2.0.0-beta.7",
+    "babel-plugin-prismjs": "^2.0.1",
     "bili": "^5.0.0",
     "browser-env": "^3.2.1",
     "eslint": "^7.12.1",
@@ -41,6 +42,6 @@
     "vue-jest": "^5.0.0-alpha.5"
   },
   "dependencies": {
-    "vue-ripple-directive": "^2.0.1"
+    "prismjs": "^1.22.0"
   }
 }
