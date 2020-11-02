@@ -25,7 +25,7 @@ const install = function (app, { breakpoints = DEFAULT_BREAKPOINTS, defaultBreak
   })
 
   app.config.globalProperties.$mqAvailableBreakpoints = breakpoints;
-  app.component('MqLayout', MqLayout)
+  app.component('MqLayout', MqLayout);
 }
 
 export default {

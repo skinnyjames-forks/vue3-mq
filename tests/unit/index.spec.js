@@ -32,6 +32,7 @@ describe("index.js", () => {
 	});
 
 	test("should default to defaultBreakpoint in options", () => {
+		matchMediaMock.setConfig({});
 		const plugins = [
 			[
 				plugin,
@@ -65,12 +66,21 @@ describe("index.js", () => {
 			},
 			{ global: { plugins: [plugin] }, shallow: true }
 		);
-		expect(window.matchMedia).toBeCalledWith("(min-width: 1250px)");
+		expect(window.matchMedia).toBeCalledWith("(min-width: 1400px)");
 		expect(window.matchMedia).toBeCalledWith(
-			"(min-width: 450px) and (max-width: 1249px)"
+			"(min-width: 1200px) and (max-width: 1399px)"
 		);
 		expect(window.matchMedia).toBeCalledWith(
-			"(min-width: 0px) and (max-width: 449px)"
+			"(min-width: 992px) and (max-width: 1199px)"
+		);
+		expect(window.matchMedia).toBeCalledWith(
+			"(min-width: 768px) and (max-width: 991px)"
+		);
+		expect(window.matchMedia).toBeCalledWith(
+			"(min-width: 576px) and (max-width: 767px)"
+		);
+		expect(window.matchMedia).toBeCalledWith(
+			"(min-width: 0px) and (max-width: 575px)"
 		);
 	});
 
@@ -85,7 +95,7 @@ describe("index.js", () => {
 		);
 		matchMediaMock.setConfig({ type: "screen", width: 700 });
 		Array.from(results)[1].callListeners();
-		expect(wrapper.vm.$mq).toBe("md");
+		expect(wrapper.vm.$mq).toBe("sm");
 	});
 	
 	it("should mount the mq-layout component", () => {

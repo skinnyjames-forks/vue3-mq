@@ -1,8 +1,8 @@
 module.exports = {
-    root: 'demo',
-    base: '/vue3-mq',
-    optimizeDeps: {
-        include: ['json2mq','primevue/toolbar','prismjs']
-    },
-    assetsDir: ''
-}
+	root: "demo",
+	base: "/",
+	optimizeDeps: {
+		include: ["json2mq", "primevue/toolbar", "prismjs"],
+	},
+	assetsDir: "",
+};
