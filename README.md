@@ -22,7 +22,7 @@ Presently, support for SSR has been removed
 
 ## Demo
 
-See https://craigrileyuk.github.io/vue3-mq/ for a demonstration and usage guide for Vue3-MQ.
+See https://vue3-mq.info for a demonstration and usage guide for Vue3-MQ.
 
 ## Installation
 
