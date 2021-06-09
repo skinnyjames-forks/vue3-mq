@@ -1,4 +1,4 @@
-import MqLayout from './component';
+export * from './component';
 import { setCurrentBreakpoint, currentBreakpoint, updateBreakpoints, DEFAULT_BREAKPOINTS } from "./store";
 import { readonly } from "vue";
 
@@ -23,11 +23,8 @@ const install = function (app, { breakpoints = DEFAULT_BREAKPOINTS, defaultBreak
       }
     }
   })
-
   app.config.globalProperties.$mqAvailableBreakpoints = breakpoints;
-  app.component('MqLayout', MqLayout);
 }
-
 export default {
   install
 }
