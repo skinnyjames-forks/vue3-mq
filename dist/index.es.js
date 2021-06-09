@@ -1,5 +1,5 @@
 import json2mq from 'json2mq';
-import { ref, readonly } from 'vue';
+import { ref, readonly, computed, h, TransitionGroup, Transition } from 'vue';
 
 function _typeof(obj) {
   "@babel/helpers - typeof";
@@ -32,6 +32,44 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    });
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _slicedToArray(arr, i) {
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+}
+
 function _toConsumableArray(arr) {
   return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
 }
@@ -40,8 +78,39 @@ function _arrayWithoutHoles(arr) {
   if (Array.isArray(arr)) return _arrayLikeToArray(arr);
 }
 
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
 function _iterableToArray(iter) {
   if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+}
+
+function _iterableToArrayLimit(arr, i) {
+  if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
 }
 
 function _unsupportedIterableToArray(o, minLen) {
@@ -63,6 +132,10 @@ function _arrayLikeToArray(arr, len) {
 
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
 var DEFAULT_BREAKPOINTS = {
@@ -115,6 +188,29 @@ function updateBreakpoints(breakpoints) {
     _loop(key);
   }
 }
+function shouldRender(mq) {
+  var isMqArray = Array.isArray(mq);
+  var isMqPlus = !isMqArray.value && /\+$/.test(mq) === true;
+  var isMqMinus = !isMqArray.value && /-$/.test(mq) === true;
+  var isMqRange = !isMqArray.value && /^\w*-\w*/.test(mq) === true;
+  var activeBreakpoints = computed(function () {
+    if (isMqArray) return mq;else if (!isMqPlus && !isMqMinus && !isMqRange) return [mq];else {
+      return selectBreakpoints({
+        mqProp: mq,
+        isMqPlus: {
+          value: isMqPlus
+        },
+        isMqMinus: {
+          value: isMqMinus
+        },
+        isMqRange: {
+          value: isMqRange
+        }
+      });
+    }
+  });
+  return activeBreakpoints.value.includes(currentBreakpoint.value);
+}
 
 var listeners = [];
 function convertBreakpointsToMediaQueries(breakpoints) {
@@ -133,6 +229,89 @@ function convertBreakpointsToMediaQueries(breakpoints) {
     return Object.assign(accumulator, _defineProperty({}, keys[index], mediaQuery));
   }, {});
   return mediaQueries;
+}
+function selectBreakpoints(_ref) {
+  var mqProp = _ref.mqProp,
+      _ref$isMqPlus = _ref.isMqPlus,
+      isMqPlus = _ref$isMqPlus === void 0 ? {
+    value: false
+  } : _ref$isMqPlus,
+      _ref$isMqMinus = _ref.isMqMinus,
+      isMqMinus = _ref$isMqMinus === void 0 ? {
+    value: false
+  } : _ref$isMqMinus,
+      _ref$isMqRange = _ref.isMqRange,
+      isMqRange = _ref$isMqRange === void 0 ? {
+    value: false
+  } : _ref$isMqRange;
+  var ents = Object.entries(mqAvailableBreakpoints.value);
+  if (ents.length === 0) return [];
+  if (isMqPlus.value) mqProp = mqProp.replace(/\+$/, "");else if (isMqMinus.value) mqProp = mqProp.replace(/-$/, "");else if (isMqRange.value) {
+    mqProp = mqProp.split("-");
+    if (!mqProp || mqProp.length !== 2) throw new Error("Invalid MQ range provided");
+  }
+  var eligible;
+
+  if (isMqRange.value) {
+    var from = ents.find(function (_ref2) {
+      var _ref3 = _slicedToArray(_ref2, 2),
+          key = _ref3[0],
+          value = _ref3[1];
+
+      return key == mqProp[0].trim();
+    });
+    if (!from || from.length === 0) throw new Error("Range from breakpoint (" + mqProp[0].trim() + ") not found");
+    var to = ents.find(function (_ref4) {
+      var _ref5 = _slicedToArray(_ref4, 2),
+          key = _ref5[0],
+          value = _ref5[1];
+
+      return key == mqProp[1].trim();
+    });
+    if (!to || to.length === 0) throw new Error("Range to breakpoint (" + mqProp[1].trim() + ") not found");
+
+    if (from[1] > to[1]) {
+      var _ref6 = [to, from];
+      from = _ref6[0];
+      to = _ref6[1];
+    }
+
+    eligible = ents.filter(function (_ref7) {
+      var _ref8 = _slicedToArray(_ref7, 2),
+          key = _ref8[0],
+          value = _ref8[1];
+
+      return value >= from[1] && value <= to[1];
+    });
+  } else {
+    var base = ents.find(function (_ref9) {
+      var _ref10 = _slicedToArray(_ref9, 2),
+          key = _ref10[0],
+          value = _ref10[1];
+
+      return key == mqProp;
+    });
+    if (isMqPlus.value) eligible = ents.filter(function (_ref11) {
+      var _ref12 = _slicedToArray(_ref11, 2),
+          key = _ref12[0],
+          value = _ref12[1];
+
+      return value >= base[1];
+    });else if (isMqMinus.value) eligible = ents.filter(function (_ref13) {
+      var _ref14 = _slicedToArray(_ref13, 2),
+          key = _ref14[0],
+          value = _ref14[1];
+
+      return value <= base[1];
+    });
+  }
+
+  eligible.sort(function (a, b) {
+    return a[1] - b[1];
+  });
+  return eligible.map(function (el) {
+    return el[0];
+  });
 }
 function subscribeToMediaQuery(mediaQuery, enter) {
   var mql = window.matchMedia(mediaQuery);
@@ -163,6 +342,98 @@ function sanitiseBreakpoints(breakpoints) {
     if (!breakpoints[bp]) throw new Error("No valid breakpoint value for " + bp + " was found");
   }
 }
+
+var MqLayout = {
+  name: "MqLayout",
+  props: {
+    mq: {
+      type: [String, Array]
+    },
+    tag: {
+      type: String,
+      "default": "div"
+    },
+    group: {
+      type: Boolean,
+      "default": false
+    }
+  },
+  setup: function setup(props, context) {
+    console.log("Running setup()");
+    var defaultOptions = {
+      name: "fade",
+      mode: "out-in"
+    };
+    var isMqArray = computed(function () {
+      return Array.isArray(props.mq);
+    });
+    var isMqPlus = computed(function () {
+      return !isMqArray.value && /\+$/.test(props.mq) === true;
+    });
+    var isMqMinus = computed(function () {
+      return !isMqArray.value && /-$/.test(props.mq) === true;
+    });
+    var isMqRange = computed(function () {
+      return !isMqArray.value && /^\w*-\w*/.test(props.mq) === true;
+    });
+    var activeBreakpoints = computed(function () {
+      if (isMqArray.value) return props.mq;else if (!isMqPlus.value && !isMqMinus.value && !isMqRange.value) return [props.mq];else {
+        return selectBreakpoints({
+          mqProp: props.mq,
+          isMqPlus: isMqPlus,
+          isMqMinus: isMqMinus,
+          isMqRange: isMqRange
+        });
+      }
+    });
+    var shouldRenderChildren = computed(function () {
+      return activeBreakpoints.value.includes(currentBreakpoint.value);
+    });
+
+    var renderSlots = function renderSlots(tag) {
+      var slots = [];
+
+      var _loop = function _loop(slot) {
+        if (!props.group && slots.length > 0) return {
+          v: slots
+        };
+        var shouldRenderSlot = computed(function () {
+          return shouldRender(slot.split(":")[0]);
+        });
+
+        if (shouldRenderSlot.value) {
+          slots.push(h(tag ? tag : context.slots[slot], {
+            key: slot
+          }, tag ? context.slots[slot]() : undefined));
+        }
+      };
+
+      for (var slot in context.slots) {
+        var _ret = _loop(slot);
+
+        if (_typeof(_ret) === "object") return _ret.v;
+      }
+
+      return slots.length > 0 ? slots : undefined;
+    };
+
+    console.log(context.slots["default"]); // If the user includes a bare element inside the mq-layout component
+    // Uses the props.tag property to render an element
+
+    if (context.slots["default"]) {
+      return function () {
+        return shouldRenderChildren.value ? h(props.tag, {}, context.slots["default"]()) : undefined;
+      };
+    } else {
+      return function () {
+        var transitionOptions = _objectSpread2(_objectSpread2({}, defaultOptions), context.attrs);
+
+        var el = props.group ? TransitionGroup : Transition;
+        return h(el, transitionOptions, renderSlots(props.tag));
+      };
+    }
+  }
+};
 
 var install = function install(app) {
   var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
@@ -197,3 +468,4 @@ var index = {
 };
 
 export default index;
+export { MqLayout };

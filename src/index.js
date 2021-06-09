@@ -1,4 +1,4 @@
-export * from './component';
+export { MqLayout } from './component';
 import { setCurrentBreakpoint, currentBreakpoint, updateBreakpoints, DEFAULT_BREAKPOINTS } from "./store";
 import { readonly } from "vue";
 

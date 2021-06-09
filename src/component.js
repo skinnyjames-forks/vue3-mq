@@ -2,7 +2,7 @@ import { selectBreakpoints } from "./helpers";
 import { currentBreakpoint, shouldRender } from "./store";
 import { computed, h, Transition, TransitionGroup } from "vue";
 
-export default {
+export const MqLayout = {
 	name: "MqLayout",
 	props: {
 		mq: {
